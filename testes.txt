@@ -1,14 +1,18 @@
-475
+declare blablabla as int
 
-47.53478
+//isso e um comentario e deve ser ignorado
 
-.23
+//dada = 345
 
-<=
+//haha = .2131
 
-=
-!
-!=
-=!
->
->=
+//eureka as float
+
+//if(happy)return 5;
+
+//else return haha
+
+esse numero eh inteiro 123
+esse numero eh float .123
+esse numero eh float 1282.4212
+esse numero eh inteiro 531453123
