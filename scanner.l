@@ -32,11 +32,14 @@ with return TK_PR_WITH;
 
 [a-z_][a-z0-9_]* return TK_ID;
 [0-9]+ return TK_LI_INT;
-[0-9]*.[0-9]+ return TK_LI_FLOAT;
+[0-9]*\.[0-9]+ return TK_LI_FLOAT;
 
 
 \n linha++;
 
+"//".*
+
+[ \s\t] continue;
 . return TK_ER;
 
 %%
