@@ -2,7 +2,7 @@
 MAIN_SRC = main.c
 LEX_SRC = scanner.l
 LEX_OBJ = lex.yy.c
-OUTPUT = programa
+OUTPUT = etapa1
 ANALISADOR = analisador
 
 # Definir as dependências
