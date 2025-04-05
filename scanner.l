@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#include "tokens.h"
+#include "parser.tab.h"
 int linha = 1;
 %}
 %option yylineno
