@@ -1,4 +1,4 @@
-declare blablabla as int
+declare blablabla as int,
 
 //isso e um comentario e deve ser ignorado
 
@@ -12,7 +12,7 @@ declare blablabla as int
 
 //else return haha
 
-esse numero eh inteiro 123
-esse numero eh float .123
-esse numero eh float 1282.4212
-esse numero eh inteiro 531453123
+declare intvar as int with 123,
+declare floatvar as float with .123,
+declare floatvar as float with 1282.4212,
+declare intvar as int with 531453123;
