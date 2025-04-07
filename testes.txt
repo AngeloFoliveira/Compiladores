@@ -1,18 +1,56 @@
-declare blablabla as int,
+//DECLARACOES
 
-//isso e um comentario e deve ser ignorado
+declare schnorr as int with 10,
+declare angelo as float,
+declare gustavo as int,
+declare galante as float with 9,
+declare haha as int with 9.512,
+declare blabla as float with .23678,
 
-//dada = 345
 
-//haha = .2131
+//ATRIBUICOES
 
-//eureka as float
+//gustavo is 15,
+//angelo is 490.123,
+//galante is 23 + 43 - 6.5,
+//schnorr is 2 * -5,
+//feijao is 2>=2,
+//batata is 3<1,
 
-//if(happy)return 5;
 
-//else return haha
+//CHAMADA DE FUNC
 
-declare intvar as int with 123,
-declare floatvar as float with .123,
-declare floatvar as float with 1282.4212,
-declare intvar as int with 531453123;
+//gomo(23,5.2,40),
+//jason(),
+
+
+//RETORNOS 
+
+//return 404 as int,
+//return 303.2 as float,
+
+
+//CONDICIONAIS 
+
+//if (x > 1) [return 21 as int],
+
+//if (flaflu == 24) [return 4.2 as float] else [return 0 as int],
+
+//while (dizimo != 10) [rato = rato + 2],
+
+
+//FUNCOES 
+
+rebobina returns float [],
+rebobina2 returns int with arroz as int, brasil as float is
+[],
+rebobina3 returns float with farinha as float, beijo as float is
+[
+    declare garfo as int with 15
+    declare faca as float with .5
+    rebobina4 ()
+    garfo is 2+2 //NAO RECONHECE ATRIBUICAO
+    colher(garfo,faca,23) //NAO RECONHECE TBM CHAMADA FUNC
+    return -2 as int //NAO RECONHECE RETORNO TBM
+    while (x==4) []
+];
