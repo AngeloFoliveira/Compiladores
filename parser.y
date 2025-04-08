@@ -36,12 +36,14 @@ lista : lista ',' elemento;
 elemento: def_func;
 elemento: decl_var;
 
-def_func: cabecalho corpo;
+def_func: cabecalho corpo2;
 
+corpo2: '[' ']';
+corpo2: '[' lista_comandos ']';
 
-cabecalho: TK_ID TK_PR_RETURNS TK_PR_FLOAT;
+cabecalho: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS;
 cabecalho: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS;
-cabecalho: TK_ID TK_PR_RETURNS TK_PR_INT;
+cabecalho: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_IS;
 cabecalho: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_WITH lista_parametros TK_PR_IS;
 
 lista_parametros: parametro;
@@ -50,19 +52,15 @@ lista_parametros: parametro ',' lista_parametros;
 parametro: TK_ID TK_PR_AS TK_PR_INT;
 parametro: TK_ID TK_PR_AS TK_PR_FLOAT;
 
-corpo: bloco_comandos;
 
-comando_simples: '[' bloco_comandos ']';
-comando_simples: '[' ']';
 comando_simples: decl_var;
 comando_simples: atribuicao;
 comando_simples: chamada_funcao;
 comando_simples: comando_retorno;
 comando_simples: construcao_fluxo;
 
-
-bloco_comandos: comando_simples;
-bloco_comandos: comando_simples bloco_comandos;
+lista_comandos: comando_simples;
+lista_comandos: comando_simples lista_comandos;
 
 
 decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo;
@@ -76,7 +74,6 @@ literal: TK_LI_INT;
 
 atribuicao: TK_ID TK_PR_IS expressao;
 
-
 chamada_funcao: TK_ID '(' ')';
 chamada_funcao: TK_ID '(' argumentos ')';
 
@@ -88,48 +85,45 @@ comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_FLOAT;
 comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_INT;
 
 
-construcao_fluxo: TK_PR_IF '(' expressao ')' bloco_comandos;
-construcao_fluxo: TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos;
-construcao_fluxo: TK_PR_WHILE '(' expressao ')' bloco_comandos;
+construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2;
+construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 TK_PR_ELSE corpo2;
+construcao_fluxo: TK_PR_WHILE '(' expressao ')' corpo2;
 
 
-expressao: e7;
+expressao: operandos;
+expressao: operandos operadores;
+expressao: lista_operadores operandos;
 
-e7: e7 '|' e6;
-e7: e6;
+operandos: TK_ID;
+operandos: literal;
+operandos: chamada_funcao;
+operandos: '(' expressao ')'
 
-e6: e6 '&' e5;
-e6: e5;
+lista_operadores: operadores_un;
+lista_operadores: lista_operadores operadores_un;
 
-e5: e5 TK_OC_EQ e4;
-e5: e5 TK_OC_NE e4;
-e5: e4;
+operadores_un: '+';
+operadores_un: '-';
+operadores_un: '!';
 
-e4: e4 '<' e3;
-e4: e4 '>' e3;
-e4: e4 TK_OC_LE e3;
-e4: e4 TK_OC_GE e3;
+operadores: '*' operandos;
+operadores: '/' operandos;
+operadores: '%' operandos;
 
-e3: e3 '+' e2;
-e3: e3 '-' e2;
-e3: e2;
+operadores: '+' operandos;
+operadores: '-' operandos;
 
-e2: e2 '*' e1;
-e2: e2 '/' e1;
-e2: e2 '%' e1;
-e2: e1;
+operadores: '<' operandos;
+operadores: '>' operandos;
+operadores: TK_OC_LE operandos;
+operadores: TK_OC_GE operandos;
 
-e1: '+' e1;
-e1: '-' e1;
-e1: '!' e1;
-e1: e0;
+operadores: TK_OC_EQ operandos;
+operadores: TK_OC_NE operandos;
 
-e0: chamada_funcao;
-e0: TK_ID;
-e0: TK_LI_INT;
-e0: TK_LI_FLOAT;
-e0: '(' expressao ')';
+operadores: '&' operandos;
 
+operadores: '|' operandos;
 
 %%
 
