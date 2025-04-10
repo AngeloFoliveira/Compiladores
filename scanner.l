@@ -39,7 +39,8 @@ with return TK_PR_WITH;
 
 "//".*
 
-[ \s\t] continue;
+[ \s\t]
+
 . return TK_ER;
 
 %%
