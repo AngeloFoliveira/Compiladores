@@ -29,12 +29,15 @@ int get_line_number(void);
 %%
 
 programa: lista ';';
+programa: ;
 
 lista: elemento;
 lista : lista ',' elemento;
 
 elemento: def_func;
-elemento: decl_var;
+elemento: decl_var_global;
+
+decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo;
 
 def_func: cabecalho corpo2;
 
