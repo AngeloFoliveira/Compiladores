@@ -1,8 +1,23 @@
 %{
+#include <stdio.h>
+#include "asd.h"
 int yylex(void);
 void yyerror (char const *mensagem);
 int get_line_number(void);
+extern asd_tree_t *arvore;
+
 %}
+
+%code requires {
+    typedef struct asd_tree asd_tree_t;
+    typedef struct valor valor_t;
+}
+
+%union {
+	asd_tree_t *no;
+	valor_t *valor_lexico;
+}
+
 
 %token TK_PR_AS
 %token TK_PR_DECLARE
@@ -19,30 +34,55 @@ int get_line_number(void);
 %token TK_OC_GE
 %token TK_OC_EQ
 %token TK_OC_NE
-%token TK_ID
-%token TK_LI_INT
-%token TK_LI_FLOAT
+%token<valor_lexico> TK_ID
+%token<valor_lexico> TK_LI_INT
+%token<valor_lexico> TK_LI_FLOAT
 %token TK_ER
+
+%type<no> programa
+%type<no> lista
+%type<no> elemento
+%type<no> decl_var_global
+%type<no> def_func
+%type<no> corpo2
+%type<no> comando_simples
+%type<no> lista_comandos
+%type<no> decl_var
+%type<no> atribuicao
+%type<no> chamada_funcao
+%type<no> argumentos
+%type<no> comando_retorno
+%type<no> construcao_fluxo
+%type<no> e0
+%type<no> e1
+%type<no> e2
+%type<no> e3
+%type<no> e4
+%type<no> e5
+%type<no> e6
+%type<no> e7
+%type<no> expressao
+
 
 %define parse.error verbose
 
 %%
 
-programa: lista ';';
-programa: ;
+programa: lista ';'{ $$ = $1; };
+programa: { $$ = NULL; };
 
-lista: elemento;
-lista : lista ',' elemento;
+lista: elemento { $$ = $1; };
+lista : lista ',' elemento { $$ = $1; asd_add_child($$, $3); };
 
-elemento: def_func;
-elemento: decl_var_global;
+elemento: def_func { $$ = $1; };
+elemento: decl_var_global { $$ = $1; };
 
-decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo;
+decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; };
 
-def_func: cabecalho corpo2;
+def_func: cabecalho corpo2 { $$ = $2; }; 
 
-corpo2: '[' ']';
-corpo2: '[' lista_comandos ']';
+corpo2: '[' ']' { $$ = NULL; };
+corpo2: '[' lista_comandos ']' { $$ = $2; };
 
 cabecalho: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS;
 cabecalho: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS;
@@ -56,18 +96,17 @@ parametro: TK_ID TK_PR_AS TK_PR_INT;
 parametro: TK_ID TK_PR_AS TK_PR_FLOAT;
 
 
-comando_simples: decl_var;
-comando_simples: atribuicao;
-comando_simples: chamada_funcao;
-comando_simples: comando_retorno;
-comando_simples: construcao_fluxo;
+comando_simples: decl_var { $$ = $1; };
+comando_simples: atribuicao { $$ = $1; };
+comando_simples: chamada_funcao { $$ = $1; };
+comando_simples: comando_retorno { $$ = $1; };
+comando_simples: construcao_fluxo { $$ = $1; };
 
-lista_comandos: comando_simples;
-lista_comandos: comando_simples lista_comandos;
+lista_comandos: comando_simples { $$ = $1; };
+lista_comandos: comando_simples lista_comandos { $$ = $1; asd_add_child($$, $2); };
 
-
-decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo;
-decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal;
+decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; };
+decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new(TK_PR_WITH); };
 
 tipo: TK_PR_FLOAT;
 tipo: TK_PR_INT;
@@ -75,60 +114,58 @@ tipo: TK_PR_INT;
 literal: TK_LI_FLOAT;
 literal: TK_LI_INT;
 
-atribuicao: TK_ID TK_PR_IS expressao;
+atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new(TK_PR_IS); asd_add_child($$,$1); asd_add_child($$,$3); };
 
-chamada_funcao: TK_ID '(' ')';
-chamada_funcao: TK_ID '(' argumentos ')';
+chamada_funcao: TK_ID '(' ')' { $$ = asd_new(strcat("call ", $1->lexema)); };
+chamada_funcao: TK_ID '(' argumentos ')' { $$ = asd_new(strcat("call ", $1->lexema)); asd_add_child($$,$3); };
 
-argumentos: expressao;
-argumentos: expressao ',' argumentos;
+argumentos: expressao { $$ = $1; };
+argumentos: expressao ',' argumentos { $$ = $1; asd_add_child($$,$3); };
 
+comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_FLOAT { $$ = asd_new(TK_PR_RETURN); asd_add_child($$,$2); };
+comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_INT { $$ = asd_new(TK_PR_RETURN); asd_add_child($$,$2); };
 
-comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_FLOAT;
-comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_INT;
+construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 { $$ = asd_new(TK_PR_IF); asd_add_child($$,$3); asd_add_child($$,$5); };
+construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 TK_PR_ELSE corpo2 { $$ = asd_new(TK_PR_IF); asd_add_child($$,$3); asd_add_child($$,$5); asd_add_child($$,$7); };
+construcao_fluxo: TK_PR_WHILE '(' expressao ')' corpo2 { $$ = asd_new(TK_PR_WHILE); asd_add_child($$,$3); asd_add_child($$,$5); };
 
+expressao: e7 { $$ = $1; };
 
-construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2;
-construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 TK_PR_ELSE corpo2;
-construcao_fluxo: TK_PR_WHILE '(' expressao ')' corpo2;
+e7: e7 '|' e6 { $$ = asd_new("|"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e7: e6 { $$ = $1; };
 
-expressao: e7;
+e6: e6 '&' e5 { $$ = asd_new("&"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e6: e5 { $$ = $1; };
 
-e7: e7 '|' e6;
-e7: e6;
-
-e6: e6 '&' e5;
-e6: e5;
-
-e5: e5 TK_OC_EQ e4;
-e5: e5 TK_OC_NE e4;
-e5: e4;
+e5: e5 TK_OC_EQ e4 { $$ = asd_new(TK_OC_EQ); asd_add_child($$, $1); asd_add_child($$, $3); };
+e5: e5 TK_OC_NE e4 { $$ = asd_new(TK_OC_NE); asd_add_child($$, $1); asd_add_child($$, $3); };
+e5: e4 { $$ = $1; };
  
-e4: e4 '<' e3;
-e4: e4 '>' e3;
-e4: e4 TK_OC_LE e3;
-e4: e4 TK_OC_GE e3;
-e4: e3;
+e4: e4 '<' e3 { $$ = asd_new("<"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 '>' e3 { $$ = asd_new(">"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 TK_OC_LE e3 { $$ = asd_new(TK_OC_LE); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 TK_OC_GE e3 { $$ = asd_new(TK_OC_GE); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e3 { $$ = $1; };
 
-e3: e3 '+' e2;
-e3: e3 '-' e2;
-e3: e2;
+e3: e3 '+' e2 { $$ = asd_new("+"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e3: e3 '-' e2 { $$ = asd_new("-"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e3: e2 { $$ = $1; };
  
-e2: e2 '*' e1;
-e2: e2 '/' e1;
-e2: e2 '%' e1;
-e2: e1;
+e2: e2 '*' e1 { $$ = asd_new("*"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e2: e2 '/' e1 { $$ = asd_new("/"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e2: e2 '%' e1 { $$ = asd_new("%"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e2: e1 { $$ = $1; };
  
-e1: '+' e1;
-e1: '-' e1;
-e1: '!' e1;
-e1: e0;
+e1: '+' e1 { $$ = asd_new("+"); asd_add_child($$, $2); };
+e1: '-' e1 { $$ = asd_new("-"); asd_add_child($$, $2); };
+e1: '!' e1 { $$ = asd_new("!"); asd_add_child($$, $2); };
+e1: e0 { $$ = $1; };
 
 e0: chamada_funcao;
-e0: TK_ID;
-e0: TK_LI_INT;
-e0: TK_LI_FLOAT;
-e0: '(' expressao ')';
+e0: TK_ID { $$ = asd_new($1->lexema); };
+e0: TK_LI_INT { $$ = asd_new($1->lexema); }; 
+e0: TK_LI_FLOAT { $$ = asd_new($1->lexema); };
+e0: '(' expressao ')' { $$ = $2; };
 %%
 
 #include <stdio.h>
