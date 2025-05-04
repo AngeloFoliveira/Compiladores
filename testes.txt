@@ -1,4 +1,35 @@
-soma returns int with a as int, b as int is [
-	return a+b as int
-]
-;
+ f returns int is [return 1 as int],
+ soma returns int with a as int, b as int is [
+ 	a is a+b
+ 	c is x+y
+ 	return a+b as int
+ ],
+ fatorial returns int with n as int is [
+ 	declare r as int with 1
+ 	r is r*n
+ 	return r as int
+ ],
+ verifica returns int with n as int is [
+ 	if(n<0) [ return 0 as int ]
+ 	else [ return 1 as int]
+ ],
+ loop returns int with n as int is [
+ 	declare x as int with 0
+ 	while (x<n) [
+ 		x is x+1
+ 	]
+ 	return x as int
+ ],
+ teste returns int with a as int, b as int is [
+ 	if (a <= b) [return 1 as int]
+ 	else [ return 0 as int ]
+ ],
+ main returns int is [
+ 	f(1, 2)
+ 	return 0 as int
+ ],
+ soma returns int with x as int, y as int is [
+ 	return x+y as int
+ 	var is soma(3, 4)
+ ]
+ ;

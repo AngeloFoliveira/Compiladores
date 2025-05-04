@@ -68,11 +68,11 @@ extern asd_tree_t *arvore;
 
 %%
 
-programa: lista ';'{ $$ = $1; };
-programa: { $$ = NULL; };
+programa: lista ';'{ arvore = $$; $$ = $1; };
+programa: { arvore = NULL; };
 
 lista: elemento { $$ = $1; };
-lista : lista ',' elemento { $$ = $1; asd_add_child($$, $3); };
+lista : elemento ',' lista { $$ = $1; asd_add_child($$, $3); };
 
 elemento: def_func { $$ = $1; };
 elemento: decl_var_global { $$ = $1; };
@@ -106,7 +106,7 @@ lista_comandos: comando_simples { $$ = $1; };
 lista_comandos: comando_simples lista_comandos { $$ = $1; asd_add_child($$, $2); };
 
 decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; };
-decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new(TK_PR_WITH); };
+decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new("with"); };
 
 tipo: TK_PR_FLOAT;
 tipo: TK_PR_INT;
@@ -114,20 +114,24 @@ tipo: TK_PR_INT;
 literal: TK_LI_FLOAT;
 literal: TK_LI_INT;
 
-atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new(TK_PR_IS); asd_add_child($$,$1); asd_add_child($$,$3); };
+atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new("is"); asd_add_child($$,asd_new($1->lexema)); asd_add_child($$,$3); };
 
-chamada_funcao: TK_ID '(' ')' { $$ = asd_new(strcat("call ", $1->lexema)); };
-chamada_funcao: TK_ID '(' argumentos ')' { $$ = asd_new(strcat("call ", $1->lexema)); asd_add_child($$,$3); };
+chamada_funcao: TK_ID '(' ')' { char buffer[256];
+    				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
+    				$$ = asd_new(buffer); };
+chamada_funcao: TK_ID '(' argumentos ')' { char buffer[256];
+    				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
+    				$$ = asd_new(buffer); };
 
 argumentos: expressao { $$ = $1; };
 argumentos: expressao ',' argumentos { $$ = $1; asd_add_child($$,$3); };
 
-comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_FLOAT { $$ = asd_new(TK_PR_RETURN); asd_add_child($$,$2); };
-comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_INT { $$ = asd_new(TK_PR_RETURN); asd_add_child($$,$2); };
+comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_FLOAT { $$ = asd_new("return"); asd_add_child($$,$2); };
+comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_INT { $$ = asd_new("return"); asd_add_child($$,$2); };
 
-construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 { $$ = asd_new(TK_PR_IF); asd_add_child($$,$3); asd_add_child($$,$5); };
-construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 TK_PR_ELSE corpo2 { $$ = asd_new(TK_PR_IF); asd_add_child($$,$3); asd_add_child($$,$5); asd_add_child($$,$7); };
-construcao_fluxo: TK_PR_WHILE '(' expressao ')' corpo2 { $$ = asd_new(TK_PR_WHILE); asd_add_child($$,$3); asd_add_child($$,$5); };
+construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 { $$ = asd_new("if"); asd_add_child($$,$3); asd_add_child($$,$5); };
+construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 TK_PR_ELSE corpo2 { $$ = asd_new("if"); asd_add_child($$,$3); asd_add_child($$,$5); asd_add_child($$,$7); };
+construcao_fluxo: TK_PR_WHILE '(' expressao ')' corpo2 { $$ = asd_new("while"); asd_add_child($$,$3); asd_add_child($$,$5); };
 
 expressao: e7 { $$ = $1; };
 
@@ -137,14 +141,14 @@ e7: e6 { $$ = $1; };
 e6: e6 '&' e5 { $$ = asd_new("&"); asd_add_child($$, $1); asd_add_child($$, $3); };
 e6: e5 { $$ = $1; };
 
-e5: e5 TK_OC_EQ e4 { $$ = asd_new(TK_OC_EQ); asd_add_child($$, $1); asd_add_child($$, $3); };
-e5: e5 TK_OC_NE e4 { $$ = asd_new(TK_OC_NE); asd_add_child($$, $1); asd_add_child($$, $3); };
+e5: e5 TK_OC_EQ e4 { $$ = asd_new("=="); asd_add_child($$, $1); asd_add_child($$, $3); };
+e5: e5 TK_OC_NE e4 { $$ = asd_new("!="); asd_add_child($$, $1); asd_add_child($$, $3); };
 e5: e4 { $$ = $1; };
  
 e4: e4 '<' e3 { $$ = asd_new("<"); asd_add_child($$, $1); asd_add_child($$, $3); };
 e4: e4 '>' e3 { $$ = asd_new(">"); asd_add_child($$, $1); asd_add_child($$, $3); };
-e4: e4 TK_OC_LE e3 { $$ = asd_new(TK_OC_LE); asd_add_child($$, $1); asd_add_child($$, $3); };
-e4: e4 TK_OC_GE e3 { $$ = asd_new(TK_OC_GE); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 TK_OC_LE e3 { $$ = asd_new("<="); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 TK_OC_GE e3 { $$ = asd_new(">="); asd_add_child($$, $1); asd_add_child($$, $3); };
 e4: e3 { $$ = $1; };
 
 e3: e3 '+' e2 { $$ = asd_new("+"); asd_add_child($$, $1); asd_add_child($$, $3); };

@@ -11,7 +11,7 @@ OUTPUT = etapa2
 CFLAGS= -fsanitize=address
 
 $(OUTPUT): $(MAIN_SRC) $(PARSER_OBJ) $(ASD_OBJ)
-	gcc $(MAIN_SRC) $(PARSER_OBJ) $(ASD_OBJ) -o $(OUTPUT) -lfl
+	gcc $(MAIN_SRC) $(PARSER_OBJ) $(ASD_OBJ) -o $(OUTPUT) -lfl $(CFLAGS)
 
 $(LEX_OBJ): $(LEX_SRC)
 	flex $(LEX_SRC)

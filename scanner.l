@@ -40,7 +40,7 @@ with return TK_PR_WITH;
 	aux->lexema = strdup(yytext);
 	aux->linha = get_line_number();
 	aux->tipo_token = IDENTIFICADOR;
-	yylval.valor_lexico = aux;	
+	yylval.valor_lexico = aux;
 	return TK_ID;}
 [0-9]+ {
 	valor_t *aux = NULL;
@@ -48,7 +48,7 @@ with return TK_PR_WITH;
 	aux->lexema = strdup(yytext);
 	aux->linha = get_line_number();
 	aux->tipo_token = LITERAL;
-	yylval.valor_lexico = aux;	
+	yylval.valor_lexico = aux;
 	return TK_LI_INT;}
 [0-9]*\.[0-9]+ {
 	valor_t *aux = NULL;
