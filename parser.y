@@ -44,7 +44,6 @@ extern asd_tree_t *arvore;
 %type<no> elemento
 %type<no> decl_var_global
 %type<no> def_func
-%type<no> cabecalho
 %type<no> corpo2
 %type<no> comando_simples
 %type<no> lista_comandos
@@ -54,6 +53,7 @@ extern asd_tree_t *arvore;
 %type<no> argumentos
 %type<no> comando_retorno
 %type<no> construcao_fluxo
+%type<no> literal
 %type<no> e0
 %type<no> e1
 %type<no> e2
@@ -73,7 +73,16 @@ programa: lista ';'{ arvore = $$; $$ = $1; };
 programa: { arvore = NULL; };
 
 lista: elemento { $$ = $1; };
-lista : elemento ',' lista { $$ = $1; asd_add_child($$, $3); };
+lista : elemento ',' lista {
+		if ($1 == NULL) {
+			$$ = $3;
+		} else if ($3 == NULL) {
+			$$ = $1;
+		} else {
+			$$ = $1;
+			asd_add_child($1, $3);
+		}
+	};
 
 elemento: def_func { $$ = $1; };
 elemento: decl_var_global { $$ = $1; };
@@ -103,16 +112,25 @@ comando_simples: comando_retorno { $$ = $1; };
 comando_simples: construcao_fluxo { $$ = $1; };
 
 lista_comandos: comando_simples { $$ = $1; };
-lista_comandos: comando_simples lista_comandos { $$ = $1; asd_add_child($$, $2); };
+lista_comandos: comando_simples lista_comandos { if ($1 == NULL) {
+			$$ = $2;
+		} else if ($2 == NULL) {
+			$$ = $1;
+		} else {
+			$$ = $1;
+			asd_add_child($1, $2);	
+		}
+	};
+
 
 decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2);};
-decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new("with"); free($2->lexema); free($2); };
+decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new("with"); asd_add_child($$, asd_new($2->lexema)); asd_add_child($$, $6); free($2->lexema); free($2); };
 
 tipo: TK_PR_FLOAT;
 tipo: TK_PR_INT;
 
-literal: TK_LI_FLOAT { free($1->lexema); free($1); };
-literal: TK_LI_INT { free($1->lexema); free($1); };
+literal: TK_LI_FLOAT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
+literal: TK_LI_INT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
 
 atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new("is"); asd_add_child($$,asd_new($1->lexema)); asd_add_child($$,$3); free($1->lexema); free($1); };
 

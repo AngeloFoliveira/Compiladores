@@ -7,7 +7,7 @@ ASD_OBJ = asd.o
 PARSER_SRC = lex.yy.c parser.tab.c
 PARSER_OBJ = lex.yy.o parser.tab.o
 BISON_OBJ = parser.tab.c
-OUTPUT = etapa2
+OUTPUT = etapa3
 CFLAGS= -fsanitize=address
 
 $(OUTPUT): $(MAIN_SRC) $(PARSER_OBJ) $(ASD_OBJ)

@@ -7,6 +7,7 @@
 #define IDENTIFICADOR 0
 #define LITERAL 1
 int linha = 1;
+int get_line_number(void);
 %}
 %option yylineno
 %option noyywrap

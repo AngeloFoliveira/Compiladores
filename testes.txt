@@ -1,9 +1,26 @@
+declare y as float,
+declare conseguimoshaha as float,
+
+bla returns float is [
+	declare y as int
+	declare x as float
+
+	declare feliz as int with 3
+	declare schnorr as float with .4
+	return z as float
+],
+
  f returns int is [return 1 as int],
  soma returns int with a as int, b as int is [
  	a is a+b*c+d
  	e is x+y
  	return a+b as int
  ],
+
+ 
+ declare voumematar as int,
+declare haha as int,
+
  fatorial returns int with n as int is [
  	declare r as int with 1
  	r is r*n
