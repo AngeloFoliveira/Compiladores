@@ -1,7 +1,7 @@
  f returns int is [return 1 as int],
  soma returns int with a as int, b as int is [
- 	a is a+b
- 	c is x+y
+ 	a is a+b*c+d
+ 	e is x+y
  	return a+b as int
  ],
  fatorial returns int with n as int is [
@@ -17,6 +17,7 @@
  	declare x as int with 0
  	while (x<n) [
  		x is x+1
+ 		z is z-1
  	]
  	return x as int
  ],

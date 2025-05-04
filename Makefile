@@ -29,7 +29,7 @@ $(ASD_OBJ): $(ASD_SRC) asd.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
-	rm -f $(LEX_OBJ) $(OUTPUT) $(PARSER_OBJ) $(PARSER_SRC) parser.tab.h
+	rm -f $(LEX_OBJ) $(OUTPUT) $(PARSER_OBJ) $(PARSER_SRC) $(ASD_OBJ) parser.tab.h
 
 run: $(OUTPUT)
 	./$(OUTPUT)

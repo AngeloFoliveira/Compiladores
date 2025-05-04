@@ -44,6 +44,7 @@ extern asd_tree_t *arvore;
 %type<no> elemento
 %type<no> decl_var_global
 %type<no> def_func
+%type<no> cabecalho
 %type<no> corpo2
 %type<no> comando_simples
 %type<no> lista_comandos
@@ -79,15 +80,14 @@ elemento: decl_var_global { $$ = $1; };
 
 decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; };
 
-def_func: cabecalho corpo2 { $$ = $2; }; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $5); }; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $7); }; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $5); }; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $7); }; 
 
 corpo2: '[' ']' { $$ = NULL; };
 corpo2: '[' lista_comandos ']' { $$ = $2; };
 
-cabecalho: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS;
-cabecalho: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS;
-cabecalho: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_IS;
-cabecalho: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_WITH lista_parametros TK_PR_IS;
 
 lista_parametros: parametro;
 lista_parametros: parametro ',' lista_parametros;
@@ -121,7 +121,8 @@ chamada_funcao: TK_ID '(' ')' { char buffer[256];
     				$$ = asd_new(buffer); };
 chamada_funcao: TK_ID '(' argumentos ')' { char buffer[256];
     				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
-    				$$ = asd_new(buffer); };
+    				$$ = asd_new(buffer);
+    				asd_add_child($$,$3); };
 
 argumentos: expressao { $$ = $1; };
 argumentos: expressao ',' argumentos { $$ = $1; asd_add_child($$,$3); };
