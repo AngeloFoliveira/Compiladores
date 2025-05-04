@@ -78,12 +78,12 @@ lista : elemento ',' lista { $$ = $1; asd_add_child($$, $3); };
 elemento: def_func { $$ = $1; };
 elemento: decl_var_global { $$ = $1; };
 
-decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; };
+decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2);};
 
-def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $5); }; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $7); }; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $5); }; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $7); }; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $5); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $7); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $5); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $7); free($1->lexema); free($1);}; 
 
 corpo2: '[' ']' { $$ = NULL; };
 corpo2: '[' lista_comandos ']' { $$ = $2; };
@@ -92,8 +92,8 @@ corpo2: '[' lista_comandos ']' { $$ = $2; };
 lista_parametros: parametro;
 lista_parametros: parametro ',' lista_parametros;
 
-parametro: TK_ID TK_PR_AS TK_PR_INT;
-parametro: TK_ID TK_PR_AS TK_PR_FLOAT;
+parametro: TK_ID TK_PR_AS TK_PR_INT { free($1->lexema); free($1); };
+parametro: TK_ID TK_PR_AS TK_PR_FLOAT { free($1->lexema); free($1); };
 
 
 comando_simples: decl_var { $$ = $1; };
@@ -105,24 +105,28 @@ comando_simples: construcao_fluxo { $$ = $1; };
 lista_comandos: comando_simples { $$ = $1; };
 lista_comandos: comando_simples lista_comandos { $$ = $1; asd_add_child($$, $2); };
 
-decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; };
-decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new("with"); };
+decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2);};
+decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new("with"); free($2->lexema); free($2); };
 
 tipo: TK_PR_FLOAT;
 tipo: TK_PR_INT;
 
-literal: TK_LI_FLOAT;
-literal: TK_LI_INT;
+literal: TK_LI_FLOAT { free($1->lexema); free($1); };
+literal: TK_LI_INT { free($1->lexema); free($1); };
 
-atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new("is"); asd_add_child($$,asd_new($1->lexema)); asd_add_child($$,$3); };
+atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new("is"); asd_add_child($$,asd_new($1->lexema)); asd_add_child($$,$3); free($1->lexema); free($1); };
 
 chamada_funcao: TK_ID '(' ')' { char buffer[256];
     				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
-    				$$ = asd_new(buffer); };
+    				$$ = asd_new(buffer);
+    				free($1->lexema);
+    				free($1); };
 chamada_funcao: TK_ID '(' argumentos ')' { char buffer[256];
     				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
     				$$ = asd_new(buffer);
-    				asd_add_child($$,$3); };
+    				asd_add_child($$,$3);
+    				free($1->lexema);
+    				free($1); };
 
 argumentos: expressao { $$ = $1; };
 argumentos: expressao ',' argumentos { $$ = $1; asd_add_child($$,$3); };
@@ -167,9 +171,9 @@ e1: '!' e1 { $$ = asd_new("!"); asd_add_child($$, $2); };
 e1: e0 { $$ = $1; };
 
 e0: chamada_funcao;
-e0: TK_ID { $$ = asd_new($1->lexema); };
-e0: TK_LI_INT { $$ = asd_new($1->lexema); }; 
-e0: TK_LI_FLOAT { $$ = asd_new($1->lexema); };
+e0: TK_ID { $$ = asd_new($1->lexema); free($1->lexema); free($1); };
+e0: TK_LI_INT { $$ = asd_new($1->lexema); free($1->lexema); free($1); }; 
+e0: TK_LI_FLOAT { $$ = asd_new($1->lexema); free($1->lexema); free($1); };
 e0: '(' expressao ')' { $$ = $2; };
 %%
 
