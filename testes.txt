@@ -1,6 +1,8 @@
 declare y as float,
 declare conseguimoshaha as float,
-
+explodiu returns int is [
+	[]
+],
 bla returns float is [
 	declare y as int
 	declare x as float
@@ -9,7 +11,7 @@ bla returns float is [
 	declare schnorr as float with .4
 	return z as float
 ],
-
+declare conseguimoshaha as float,
  f returns int is [return 1 as int],
  soma returns int with a as int, b as int is [
  	a is a+b*c+d
@@ -49,5 +51,6 @@ declare haha as int,
  soma returns int with x as int, y as int is [
  	return x+y as int
  	var is soma(3, 4)
- ]
+ ],
+ declare conseguimoshaha as float
  ;

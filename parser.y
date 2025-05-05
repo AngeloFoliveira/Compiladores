@@ -89,10 +89,10 @@ elemento: decl_var_global { $$ = $1; };
 
 decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2);};
 
-def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $5); free($1->lexema); free($1);}; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $7); free($1->lexema); free($1);}; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $5); free($1->lexema); free($1);}; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); asd_add_child($$, $7); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($5 != NULL)asd_add_child($$, $5); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($7 != NULL)asd_add_child($$, $7); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($5 != NULL)asd_add_child($$, $5); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($7 != NULL)asd_add_child($$, $7); free($1->lexema); free($1);}; 
 
 corpo2: '[' ']' { $$ = NULL; };
 corpo2: '[' lista_comandos ']' { $$ = $2; };
