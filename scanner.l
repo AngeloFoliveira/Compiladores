@@ -9,7 +9,6 @@
 int linha = 1;
 int get_line_number(void);
 %}
-%option yylineno
 %option noyywrap
 
 

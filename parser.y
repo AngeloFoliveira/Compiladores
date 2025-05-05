@@ -110,6 +110,7 @@ comando_simples: atribuicao { $$ = $1; };
 comando_simples: chamada_funcao { $$ = $1; };
 comando_simples: comando_retorno { $$ = $1; };
 comando_simples: construcao_fluxo { $$ = $1; };
+comando_simples: corpo2 { $$ = $1; };
 
 lista_comandos: comando_simples { $$ = $1; };
 lista_comandos: comando_simples lista_comandos { if ($1 == NULL) {
