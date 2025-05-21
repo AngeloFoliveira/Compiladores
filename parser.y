@@ -148,14 +148,18 @@ tipo: TK_PR_INT {$$ = INT;};
 literal: TK_LI_FLOAT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
 literal: TK_LI_INT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
 
-atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new("is"); asd_add_child($$,asd_new($1->lexema)); if ($3 != NULL)asd_add_child($$,$3); free($1->lexema); free($1); };
+atribuicao: TK_ID {use_symbol($1->lexema);} TK_PR_IS expressao { $$ = asd_new("is"); asd_add_child($$,asd_new($1->lexema)); if ($4 != NULL)asd_add_child($$,$4); free($1->lexema); free($1); };
 
-chamada_funcao: TK_ID '(' ')' { char buffer[256];
+chamada_funcao: TK_ID '(' ')' 	
+				{use_symbol($1->lexema);}
+				{ char buffer[256];
     				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
     				$$ = asd_new(buffer);
     				free($1->lexema);
     				free($1); };
-chamada_funcao: TK_ID '(' argumentos ')' { char buffer[256];
+chamada_funcao: TK_ID '(' argumentos ')' 
+				{use_symbol($1->lexema);} 
+				{ char buffer[256];
     				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
     				$$ = asd_new(buffer);
     				if ($3 != NULL)
@@ -206,7 +210,9 @@ e1: '!' e1 { $$ = asd_new("!"); asd_add_child($$, $2); };
 e1: e0 { $$ = $1; };
 
 e0: chamada_funcao;
-e0: TK_ID { $$ = asd_new($1->lexema); free($1->lexema); free($1); };
+e0: TK_ID 
+{use_symbol($1->lexema);}
+{ $$ = asd_new($1->lexema); free($1->lexema); free($1); };
 e0: TK_LI_INT { $$ = asd_new($1->lexema); free($1->lexema); free($1); }; 
 e0: TK_LI_FLOAT { $$ = asd_new($1->lexema); free($1->lexema); free($1); };
 e0: '(' expressao ')' { $$ = $2; };
