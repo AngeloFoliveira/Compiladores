@@ -170,8 +170,8 @@ chamada_funcao: TK_ID '(' argumentos ')'
 argumentos: expressao { $$ = $1; };
 argumentos: expressao ',' argumentos { $$ = $1; if ($3 != NULL)asd_add_child($$,$3); };
 
-comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_FLOAT { $$ = asd_new("return"); if ($2 != NULL)asd_add_child($$,$2); };
-comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_INT { $$ = asd_new("return"); if ($2 != NULL)asd_add_child($$,$2); };
+comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_FLOAT { $$ = asd_new("return"); checkTipoExpressaoBinaria($2->tipo, FLOAT); if ($2 != NULL)asd_add_child($$,$2); };
+comando_retorno: TK_PR_RETURN expressao TK_PR_AS TK_PR_INT { $$ = asd_new("return"); checkTipoExpressaoBinaria($2->tipo, INT); if ($2 != NULL)asd_add_child($$,$2); };
 
 construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 { $$ = asd_new("if"); if ($3 != NULL)asd_add_child($$,$3); if ($5 != NULL)asd_add_child($$,$5); };
 construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 TK_PR_ELSE corpo2 { $$ = asd_new("if"); if ($3 != NULL)asd_add_child($$,$3); if ($5 != NULL)asd_add_child($$,$5); if ($7 != NULL)asd_add_child($$,$7); };
