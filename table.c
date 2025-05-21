@@ -1,0 +1,86 @@
+// symbol_table.c
+#include "table.h"
+#include "errors.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+SymbolTable* scopeStack = NULL;
+
+// Funções auxiliares
+
+Symbol* create_symbol(const char* key, Nature nature, DataType type) {
+    Symbol* sym = (Symbol*) malloc(sizeof(Symbol));
+    strncpy(sym->key, key, MAX_SYMBOL_NAME);
+    sym->nature = nature;
+    sym->dataType = type;
+    sym->args = NULL;
+    sym->next = NULL;
+    return sym;
+}
+
+void push_scope() {
+    SymbolTable* table = (SymbolTable*) malloc(sizeof(SymbolTable));
+    table->symbols = NULL;
+    table->next = scopeStack;
+    scopeStack = table;
+    printf("push_scope\n");
+}
+
+void pop_scope() {
+    if (scopeStack) {
+        Symbol* sym = scopeStack->symbols;
+        while (sym) {
+            Symbol* next = sym->next;
+            free(sym);
+            sym = next;
+        }
+        SymbolTable* old = scopeStack;
+        scopeStack = scopeStack->next;
+        free(old);
+    }
+    printf("pop_scope\n");
+}
+
+Symbol* find_in_scope(SymbolTable* table, const char* key) {
+    Symbol* sym = table->symbols;
+    while (sym) {
+        if (strcmp(sym->key, key) == 0)
+            return sym;
+        sym = sym->next;
+    }
+    return NULL;
+}
+
+Symbol* find_symbol(const char* key) {
+    SymbolTable* current = scopeStack;
+    while (current) {
+        Symbol* sym = find_in_scope(current, key);
+        if (sym) return sym;
+        current = current->next;
+    }
+    return NULL;
+}
+
+// Interface pública
+
+void declare_symbol(const char* key, Nature nature, DataType type) {
+    if (!scopeStack) push_scope(); // garante que há escopo
+    if (find_in_scope(scopeStack, key)) {
+        fprintf(stderr, "Erro: símbolo '%s' já declarado.\n", key);
+        exit(ERR_DECLARED);
+    }
+    Symbol* sym = create_symbol(key, nature, type);
+    sym->next = scopeStack->symbols;
+    scopeStack->symbols = sym;
+}
+
+Symbol* use_symbol(const char* key) {
+    Symbol* sym = find_symbol(key);
+    if (!sym) {
+        fprintf(stderr, "Erro: símbolo '%s' não declarado.\n", key);
+        exit(ERR_UNDECLARED);
+    }
+    return sym;
+}

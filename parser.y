@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include "asd.h"
+#include "table.h"
 int yylex(void);
 void yyerror (char const *mensagem);
 int get_line_number(void);
@@ -9,6 +10,7 @@ extern asd_tree_t *arvore;
 %}
 
 %code requires {
+    #include "table.h"
     typedef struct asd_tree asd_tree_t;
     typedef struct valor valor_t;
 }
@@ -16,6 +18,7 @@ extern asd_tree_t *arvore;
 %union {
 	asd_tree_t *no;
 	valor_t *valor_lexico;
+	DataType data_type;
 }
 
 
@@ -48,6 +51,7 @@ extern asd_tree_t *arvore;
 %type<no> comando_simples
 %type<no> lista_comandos
 %type<no> decl_var
+%type<data_type> tipo
 %type<no> atribuicao
 %type<no> chamada_funcao
 %type<no> argumentos
@@ -69,8 +73,11 @@ extern asd_tree_t *arvore;
 
 %%
 
-programa: lista ';'{ arvore = $$; $$ = $1; };
+programa: criaEscopo lista destroiEscopo ';'{  $$ = $2; arvore = $$;};
 programa: { arvore = NULL; };
+
+criaEscopo: {push_scope();};
+destroiEscopo: {pop_scope();};
 
 lista: elemento { $$ = $1; };
 lista : elemento ',' lista {
@@ -87,12 +94,10 @@ lista : elemento ',' lista {
 elemento: def_func { $$ = $1; };
 elemento: decl_var_global { $$ = $1; };
 
-decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2);};
+decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2); printf("%d\n", $4);};
 
-def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($5 != NULL)asd_add_child($$, $5); free($1->lexema); free($1);}; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_FLOAT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($7 != NULL)asd_add_child($$, $7); free($1->lexema); free($1);}; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($5 != NULL)asd_add_child($$, $5); free($1->lexema); free($1);}; 
-def_func: TK_ID TK_PR_RETURNS TK_PR_INT TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($7 != NULL)asd_add_child($$, $7); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS tipo TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($5 != NULL)asd_add_child($$, $5); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS tipo TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($7 != NULL)asd_add_child($$, $7); free($1->lexema); free($1);}; 
 
 corpo2: '[' ']' { $$ = NULL; };
 corpo2: '[' lista_comandos ']' { $$ = $2; };
@@ -127,8 +132,8 @@ lista_comandos: comando_simples lista_comandos { if ($1 == NULL) {
 decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2);};
 decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new("with"); asd_add_child($$, asd_new($2->lexema)); if ($6 != NULL)asd_add_child($$, $6); free($2->lexema); free($2); };
 
-tipo: TK_PR_FLOAT;
-tipo: TK_PR_INT;
+tipo: TK_PR_FLOAT {$$ = FLOAT;};
+tipo: TK_PR_INT {$$ = INT;};
 
 literal: TK_LI_FLOAT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
 literal: TK_LI_INT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
