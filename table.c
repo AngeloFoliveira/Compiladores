@@ -74,11 +74,19 @@ void declare_symbol(const char* key, Natureza nature, DataType tipo) {
     scopeStack->symbols = sym;
 }
 
-Symbol* use_symbol(const char* key) {
+Symbol* use_symbol(const char* key, Natureza nature) {
     Symbol* sym = find_symbol(key);
     if (!sym) {
         fprintf(stderr, "Erro: símbolo '%s' não declarado.\n", key);
         exit(ERR_UNDECLARED);
+    }
+    if(nature == IDENTIFICADOR && sym->nature == FUNCAO) {
+        fprintf(stderr, "Erro: símbolo '%s' é uma função, não uma variável.\n", key);
+        exit(ERR_FUNCTION);
+    }
+    if(nature == FUNCAO && sym->nature == IDENTIFICADOR) {
+        fprintf(stderr, "Erro: símbolo '%s' é uma variável, não uma função.\n", key);
+        exit(ERR_VARIABLE);
     }
     return sym;
 }
