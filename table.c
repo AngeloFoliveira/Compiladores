@@ -10,37 +10,35 @@ SymbolTable* scopeStack = NULL;
 
 // Funções auxiliares
 
-Symbol* create_symbol(const char* key, Nature nature, DataType type) {
+Symbol* create_symbol(const char* key, Natureza nature, DataType tipo) {
     Symbol* sym = (Symbol*) malloc(sizeof(Symbol));
     strncpy(sym->key, key, MAX_SYMBOL_NAME);
     sym->nature = nature;
-    sym->dataType = type;
+    sym->dataType = tipo;
     sym->args = NULL;
-    sym->next = NULL;
+    sym->prox = NULL;
     return sym;
 }
 
 void push_scope() {
     SymbolTable* table = (SymbolTable*) malloc(sizeof(SymbolTable));
     table->symbols = NULL;
-    table->next = scopeStack;
+    table->prox = scopeStack;
     scopeStack = table;
-    printf("push_scope\n");
 }
 
 void pop_scope() {
     if (scopeStack) {
         Symbol* sym = scopeStack->symbols;
         while (sym) {
-            Symbol* next = sym->next;
+            Symbol* prox = sym->prox;
             free(sym);
-            sym = next;
+            sym = prox;
         }
         SymbolTable* old = scopeStack;
-        scopeStack = scopeStack->next;
+        scopeStack = scopeStack->prox;
         free(old);
     }
-    printf("pop_scope\n");
 }
 
 Symbol* find_in_scope(SymbolTable* table, const char* key) {
@@ -48,7 +46,7 @@ Symbol* find_in_scope(SymbolTable* table, const char* key) {
     while (sym) {
         if (strcmp(sym->key, key) == 0)
             return sym;
-        sym = sym->next;
+        sym = sym->prox;
     }
     return NULL;
 }
@@ -58,21 +56,21 @@ Symbol* find_symbol(const char* key) {
     while (current) {
         Symbol* sym = find_in_scope(current, key);
         if (sym) return sym;
-        current = current->next;
+        current = current->prox;
     }
     return NULL;
 }
 
 // Interface pública
 
-void declare_symbol(const char* key, Nature nature, DataType type) {
-    if (!scopeStack) push_scope(); // garante que há escopo
-    if (find_in_scope(scopeStack, key)) {
+void declare_symbol(const char* key, Natureza nature, DataType tipo) {
+    //trocar para find_in_scope caso possa ter nomes iguais em escopos diferentes
+    if (find_symbol(key)) {
         fprintf(stderr, "Erro: símbolo '%s' já declarado.\n", key);
         exit(ERR_DECLARED);
     }
-    Symbol* sym = create_symbol(key, nature, type);
-    sym->next = scopeStack->symbols;
+    Symbol* sym = create_symbol(key, nature, tipo);
+    sym->prox = scopeStack->symbols;
     scopeStack->symbols = sym;
 }
 

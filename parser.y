@@ -94,10 +94,16 @@ lista : elemento ',' lista {
 elemento: def_func { $$ = $1; };
 elemento: decl_var_global { $$ = $1; };
 
-decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2); printf("%d\n", $4);};
+decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo 
+{declare_symbol($2->lexema, IDENTIFICADOR, $4);}
+{ $$ = NULL; free($2->lexema); free($2); printf("%d\n", $4);};
 
-def_func: TK_ID TK_PR_RETURNS tipo TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($5 != NULL)asd_add_child($$, $5); free($1->lexema); free($1);}; 
-def_func: TK_ID TK_PR_RETURNS tipo TK_PR_WITH lista_parametros TK_PR_IS corpo2 { $$ = asd_new($1->lexema); if ($7 != NULL)asd_add_child($$, $7); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS tipo TK_PR_IS
+{declare_symbol($1->lexema, FUNCAO, $3);}
+criaEscopo corpo2 destroiEscopo { $$ = asd_new($1->lexema); if ($7 != NULL)asd_add_child($$, $7); free($1->lexema); free($1);}; 
+def_func: TK_ID TK_PR_RETURNS tipo TK_PR_WITH
+{declare_symbol($1->lexema, FUNCAO, $3);}
+criaEscopo lista_parametros TK_PR_IS corpo2 destroiEscopo { $$ = asd_new($1->lexema); if ($9 != NULL)asd_add_child($$, $9); free($1->lexema); free($1);}; 
 
 corpo2: '[' ']' { $$ = NULL; };
 corpo2: '[' lista_comandos ']' { $$ = $2; };
@@ -115,7 +121,7 @@ comando_simples: atribuicao { $$ = $1; };
 comando_simples: chamada_funcao { $$ = $1; };
 comando_simples: comando_retorno { $$ = $1; };
 comando_simples: construcao_fluxo { $$ = $1; };
-comando_simples: corpo2 { $$ = $1; };
+comando_simples: criaEscopo corpo2 destroiEscopo { $$ = $2; };
 
 lista_comandos: comando_simples { $$ = $1; };
 lista_comandos: comando_simples lista_comandos { if ($1 == NULL) {
@@ -129,8 +135,12 @@ lista_comandos: comando_simples lista_comandos { if ($1 == NULL) {
 	};
 
 
-decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo { $$ = NULL; free($2->lexema); free($2);};
-decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal { $$ = asd_new("with"); asd_add_child($$, asd_new($2->lexema)); if ($6 != NULL)asd_add_child($$, $6); free($2->lexema); free($2); };
+decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo 
+{declare_symbol($2->lexema, IDENTIFICADOR, $4);}
+{ $$ = NULL; free($2->lexema); free($2);};
+decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal 
+{declare_symbol($2->lexema, IDENTIFICADOR, $4);}
+{ $$ = asd_new("with"); asd_add_child($$, asd_new($2->lexema)); if ($6 != NULL)asd_add_child($$, $6); free($2->lexema); free($2); };
 
 tipo: TK_PR_FLOAT {$$ = FLOAT;};
 tipo: TK_PR_INT {$$ = INT;};

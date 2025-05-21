@@ -3,12 +3,11 @@
 
 #define MAX_SYMBOL_NAME 64
 
-// Naturezas
 typedef enum {
     LITERAL,
-    IDENTIFIER,
-    FUNCTION
-} Nature;
+    IDENTIFICADOR,
+    FUNCAO
+} Natureza;
 
 // Tipos de dados
 typedef enum {
@@ -18,14 +17,14 @@ typedef enum {
 
 // Argumento de função
 typedef struct Arg {
-    DataType type;
-    struct Arg* next;
+    DataType tipo;
+    struct Arg* prox;
 } Arg;
 
 // Entrada na tabela de símbolos
 typedef struct Symbol {
     char key[MAX_SYMBOL_NAME];
-    Nature nature;
+    Natureza nature;
     DataType dataType;
     Arg* args;
     union {
@@ -33,19 +32,19 @@ typedef struct Symbol {
         float f_val;
         char* s_val;
     } value;
-    struct Symbol* next;
+    struct Symbol* prox;
 } Symbol;
 
 // Tabela de símbolos (lista encadeada)
 typedef struct SymbolTable {
     Symbol* symbols;
-    struct SymbolTable* next; // para pilha de escopos
+    struct SymbolTable* prox; // para pilha de escopos
 } SymbolTable;
 
 // Interface da Tabela de Símbolos
 void push_scope();
 void pop_scope();
-void declare_symbol(const char* key, Nature nature, DataType type);
+void declare_symbol(const char* key, Natureza nature, DataType tipo);
 Symbol* use_symbol(const char* key);
 
 
