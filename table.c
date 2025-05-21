@@ -90,3 +90,10 @@ Symbol* use_symbol(const char* key, Natureza nature) {
     }
     return sym;
 }
+
+void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2) {
+    if (tipo1 != tipo2) {
+        fprintf(stderr, "Erro: tipos incompatíveis em expressão binária.\n");
+        exit(ERR_WRONG_TYPE);
+    }
+}

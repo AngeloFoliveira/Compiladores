@@ -179,42 +179,41 @@ construcao_fluxo: TK_PR_WHILE '(' expressao ')' corpo2 { $$ = asd_new("while"); 
 
 expressao: e7 { $$ = $1; };
 
-e7: e7 '|' e6 { $$ = asd_new("|"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e7: e7 '|' e6 { $$ = asd_new("|"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
 e7: e6 { $$ = $1; };
 
-e6: e6 '&' e5 { $$ = asd_new("&"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e6: e6 '&' e5 { $$ = asd_new("&"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
 e6: e5 { $$ = $1; };
 
-e5: e5 TK_OC_EQ e4 { $$ = asd_new("=="); asd_add_child($$, $1); asd_add_child($$, $3); };
-e5: e5 TK_OC_NE e4 { $$ = asd_new("!="); asd_add_child($$, $1); asd_add_child($$, $3); };
+e5: e5 TK_OC_EQ e4 { $$ = asd_new("=="); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
+e5: e5 TK_OC_NE e4 { $$ = asd_new("!="); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
 e5: e4 { $$ = $1; };
  
-e4: e4 '<' e3 { $$ = asd_new("<"); asd_add_child($$, $1); asd_add_child($$, $3); };
-e4: e4 '>' e3 { $$ = asd_new(">"); asd_add_child($$, $1); asd_add_child($$, $3); };
-e4: e4 TK_OC_LE e3 { $$ = asd_new("<="); asd_add_child($$, $1); asd_add_child($$, $3); };
-e4: e4 TK_OC_GE e3 { $$ = asd_new(">="); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 '<' e3 { $$ = asd_new("<"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 '>' e3 { $$ = asd_new(">"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 TK_OC_LE e3 { $$ = asd_new("<="); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
+e4: e4 TK_OC_GE e3 { $$ = asd_new(">="); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
 e4: e3 { $$ = $1; };
 
-e3: e3 '+' e2 { $$ = asd_new("+"); asd_add_child($$, $1); asd_add_child($$, $3); };
-e3: e3 '-' e2 { $$ = asd_new("-"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e3: e3 '+' e2 { $$ = asd_new("+"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); $$->tipo=$1->tipo; asd_add_child($$, $1); asd_add_child($$, $3); };
+e3: e3 '-' e2 { $$ = asd_new("-"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); $$->tipo=$1->tipo; asd_add_child($$, $1); asd_add_child($$, $3); };
 e3: e2 { $$ = $1; };
  
-e2: e2 '*' e1 { $$ = asd_new("*"); asd_add_child($$, $1); asd_add_child($$, $3); };
-e2: e2 '/' e1 { $$ = asd_new("/"); asd_add_child($$, $1); asd_add_child($$, $3); };
-e2: e2 '%' e1 { $$ = asd_new("%"); asd_add_child($$, $1); asd_add_child($$, $3); };
+e2: e2 '*' e1 { $$ = asd_new("*"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); $$->tipo=$1->tipo; asd_add_child($$, $1); asd_add_child($$, $3); };
+e2: e2 '/' e1 { $$ = asd_new("/"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); asd_add_child($$, $1); asd_add_child($$, $3); };
+e2: e2 '%' e1 { $$ = asd_new("%"); checkTipoExpressaoBinaria($1->tipo, $3->tipo); $$->tipo=$1->tipo; asd_add_child($$, $1); asd_add_child($$, $3); };
 e2: e1 { $$ = $1; };
  
-e1: '+' e1 { $$ = asd_new("+"); asd_add_child($$, $2); };
-e1: '-' e1 { $$ = asd_new("-"); asd_add_child($$, $2); };
-e1: '!' e1 { $$ = asd_new("!"); asd_add_child($$, $2); };
+e1: '+' e1 { $$ = asd_new("+"); $$->tipo=$2->tipo; asd_add_child($$, $2); };
+e1: '-' e1 { $$ = asd_new("-"); $$->tipo=$2->tipo; asd_add_child($$, $2); };
+e1: '!' e1 { $$ = asd_new("!"); $$->tipo=$2->tipo; asd_add_child($$, $2); };
 e1: e0 { $$ = $1; };
 
 e0: chamada_funcao;
 e0: TK_ID 
-{use_symbol($1->lexema, IDENTIFICADOR);}
-{ $$ = asd_new($1->lexema); free($1->lexema); free($1); };
-e0: TK_LI_INT { $$ = asd_new($1->lexema); free($1->lexema); free($1); }; 
-e0: TK_LI_FLOAT { $$ = asd_new($1->lexema); free($1->lexema); free($1); };
+{ $$ = asd_new($1->lexema); $$->tipo = use_symbol($1->lexema, IDENTIFICADOR)->dataType; free($1->lexema); free($1); };
+e0: TK_LI_INT { $$ = asd_new($1->lexema); $$->tipo=INT; free($1->lexema); free($1); }; 
+e0: TK_LI_FLOAT { $$ = asd_new($1->lexema); $$->tipo=FLOAT; free($1->lexema); free($1); };
 e0: '(' expressao ')' { $$ = $2; };
 %%
 

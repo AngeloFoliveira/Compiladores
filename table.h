@@ -46,6 +46,7 @@ void push_scope();
 void pop_scope();
 void declare_symbol(const char* key, Natureza nature, DataType tipo);
 Symbol* use_symbol(const char* key, Natureza nature);
+void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2); 
 
 
 #endif // SYMBOL_TABLE_H
