@@ -148,7 +148,7 @@ tipo: TK_PR_INT {$$ = INT;};
 literal: TK_LI_FLOAT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
 literal: TK_LI_INT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
 
-atribuicao: TK_ID {use_symbol($1->lexema, IDENTIFICADOR);} TK_PR_IS expressao { $$ = asd_new("is"); asd_add_child($$,asd_new($1->lexema)); if ($4 != NULL)asd_add_child($$,$4); free($1->lexema); free($1); };
+atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new("is"); $$->tipo = use_symbol($1->lexema, IDENTIFICADOR)->dataType; checkTipoExpressaoBinaria($$->tipo, $3->tipo); asd_add_child($$,asd_new($1->lexema)); if ($3 != NULL)asd_add_child($$,$3); free($1->lexema); free($1); };
 
 chamada_funcao: TK_ID '(' ')' 	
 				{use_symbol($1->lexema, FUNCAO);}
