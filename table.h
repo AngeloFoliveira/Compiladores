@@ -27,6 +27,7 @@ typedef struct Symbol {
     Natureza nature;
     DataType dataType;
     Arg* args;
+    int line; // linha de declaração
     union {
         int i_val;
         float f_val;
@@ -44,9 +45,14 @@ typedef struct SymbolTable {
 // Interface da Tabela de Símbolos
 void push_scope();
 void pop_scope();
-void declare_symbol(const char* key, Natureza nature, DataType tipo);
-Symbol* use_symbol(const char* key, Natureza nature);
-void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2); 
+void declare_symbol(const char* key, Natureza nature, DataType tipo, Arg* args, int linha);
+Symbol* use_symbol(const char* key, Natureza nature, int linha);
+Symbol* create_symbol(const char* key, Natureza nature, DataType tipo, Arg* args, int linha);
+void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2, int linha); 
+void checkChamadaFuncao(const char* key, Arg* args);
+Arg* create_arg(DataType tipo);
+Arg* append_arg(Arg* lista, Arg* novo);
+
 
 
 #endif // SYMBOL_TABLE_H
