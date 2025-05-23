@@ -2,6 +2,7 @@
 #define SYMBOL_TABLE_H
 
 #define MAX_SYMBOL_NAME 64
+#include "asd.h"
 
 typedef enum {
     LITERAL,
@@ -45,11 +46,15 @@ typedef struct SymbolTable {
 // Interface da Tabela de Símbolos
 void push_scope();
 void pop_scope();
+void free_args(Arg *args);
+Symbol* find_symbol(const char* key);
+Symbol* find_in_scope(SymbolTable* table, const char* key);
 void declare_symbol(const char* key, Natureza nature, DataType tipo, Arg* args, int linha);
 Symbol* use_symbol(const char* key, Natureza nature, int linha);
 Symbol* create_symbol(const char* key, Natureza nature, DataType tipo, Arg* args, int linha);
 void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2, int linha); 
 void checkChamadaFuncao(const char* key, Arg* args);
+Arg* transformar_asd_em_lista(asd_tree_t* tree, Arg* lista);
 Arg* create_arg(DataType tipo);
 Arg* append_arg(Arg* lista, Arg* novo);
 
