@@ -227,3 +227,11 @@ void check_parameter_count(int linha) {
         exit(ERR_EXCESS_ARGS);
     }
 }
+
+void check_return_type(DataType tipo, int linha) {
+    Symbol* func = find_symbol(func_atual);
+    if (func->dataType != tipo) {
+        fprintf(stderr, "Erro: tipo de retorno incompatível na função '%s'. Linha: %d\n", func_atual, linha);
+        exit(ERR_WRONG_TYPE);
+    }
+}

@@ -56,5 +56,6 @@ void free_func_call();
 void check_func_call(DataType tipo, int linha);
 void printArgList(Arg* arg);
 void check_parameter_count(int linha);
+void check_return_type(DataType tipo, int linha);
 
 #endif // SYMBOL_TABLE_H
