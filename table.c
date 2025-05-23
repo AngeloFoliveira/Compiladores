@@ -114,15 +114,17 @@ void free_func_atual() {
 
 //Insere no fim da lista de argumentos
 void insert_arg(DataType tipo) {
-    // if (!func_atual) {
-    //     fprintf(stderr, "Erro: função não definida.\n");
-    //     exit(1);
-    // }
+    if (!func_atual) {
+        //EM TEORIA NUNCA ENTRA AQUI, MAS É POR PRECAUÇÃO
+        fprintf(stderr, "Erro: função não definida. Linha: %d\n");
+        exit(ERR_UNDECLARED);
+    }
     Symbol* func = find_symbol(func_atual);
-    // if (!func) {
-    //     fprintf(stderr, "Erro: função '%s' não declarada.\n", func_atual);
-    //     exit(1);
-    // }
+    if (!func) {
+        //EM TEORIA NUNCA ENTRA AQUI, MAS É POR PRECAUÇÃO
+        fprintf(stderr, "Erro: função '%s' não declarada.\n", func_atual);
+        exit(ERR_UNDECLARED);
+    }
     Arg* arg = (Arg*) malloc(sizeof(Arg));
     arg->tipo = tipo;
     arg->prox = NULL;
@@ -170,8 +172,9 @@ void free_func_call() {
 
 void check_func_call(DataType tipo, int linha) {
     if (!func_call) {
-        fprintf(stderr, "Erro: chamada de função sem função atual.\n");
-        exit(1);
+        //EM TEORIA NUNCA ENTRA AQUI, MAS É POR PRECAUÇÃO
+        fprintf(stderr, "Erro: chamada de função sem função atual. Linha: %d\n", linha);
+        exit(ERR_UNDECLARED);
     }
     Symbol* func = find_symbol(func_call);
     Arg* arg = func->args;
