@@ -7,6 +7,9 @@
 
 
 SymbolTable* scopeStack = NULL;
+char *func_atual = NULL;
+char *func_call = NULL;
+int parameter_count = 0;
 
 // Funções auxiliares
 
@@ -95,5 +98,117 @@ void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2) {
     if (tipo1 != tipo2) {
         fprintf(stderr, "Erro: tipos incompatíveis em expressão binária.\n");
         exit(ERR_WRONG_TYPE);
+    }
+}
+
+void set_func_atual(const char* func) {
+    func_atual = strdup(func);
+}
+
+void free_func_atual() {
+    if (func_atual) {
+        free(func_atual);
+        func_atual = NULL;
+    }
+}
+
+//Insere no fim da lista de argumentos
+void insert_arg(DataType tipo) {
+    if (!func_atual) {
+        fprintf(stderr, "Erro: função não definida.\n");
+        exit(1);
+    }
+    Symbol* func = find_symbol(func_atual);
+    if (!func) {
+        fprintf(stderr, "Erro: função '%s' não declarada.\n", func_atual);
+        exit(1);
+    }
+    Arg* arg = (Arg*) malloc(sizeof(Arg));
+    arg->tipo = tipo;
+    arg->prox = NULL;
+
+    Arg* temp = func->args;
+    if(temp != NULL){
+        while (temp->prox) {
+            temp = temp->prox;
+        }
+        temp->prox = arg;
+    }
+    else{
+        func->args = arg;
+    }
+    
+}
+
+void printArgList(Arg* arg) {
+    printf("funcao: %s ", func_atual);
+    while (arg) {
+        if (arg->tipo == INT) {
+            printf("INT ");
+        } else if (arg->tipo == FLOAT) {
+            printf("FLOAT ");
+        }
+        arg = arg->prox;
+    }
+    printf("\n");
+}
+
+void reset_parameter_count() {
+    parameter_count = 0;
+}
+
+void set_func_call(const char* func) {
+    func_call = strdup(func);
+}
+
+void free_func_call() {
+    if (func_call) {
+        free(func_call);
+        func_call = NULL;
+    }
+}
+
+void check_func_call(DataType tipo) {
+    if (!func_call) {
+        fprintf(stderr, "Erro: chamada de função sem função atual.\n");
+        exit(1);
+    }
+    Symbol* func = find_symbol(func_call);
+    Arg* arg = func->args;
+    int n = 0;
+    if(!arg) {
+        fprintf(stderr, "Erro: número de argumentos acima do requerido na chamada da função '%s'.\n", func_call);
+        exit(ERR_EXCESS_ARGS);
+    }
+    while (n < parameter_count) {
+        n++;
+        arg = arg->prox;
+        if(!arg) {
+            fprintf(stderr, "Erro: número de argumentos acima do requerido na chamada da função '%s'.\n", func_call);
+            exit(ERR_EXCESS_ARGS);
+        }
+    }
+    if (arg->tipo != tipo) {
+        fprintf(stderr, "Erro: tipos incompatíveis na chamada da função '%s'.\n", func_call);
+        exit(ERR_WRONG_TYPE_ARGS);
+    }
+    parameter_count++;
+}
+
+void check_parameter_count() {
+    int n = 0;
+    Symbol* func = find_symbol(func_call);
+    Arg* arg = func->args;
+    while (arg) {
+        n++;
+        arg = arg->prox;
+    }
+    if (parameter_count < n) {
+        fprintf(stderr, "Erro: número de argumentos abaixo do requerido na chamada da função '%s'.\n", func_call);
+        exit(ERR_MISSING_ARGS);
+    }
+    if (parameter_count > n) {
+        fprintf(stderr, "Erro: número de argumentos acima do requerido na chamada da função '%s'.\n", func_call);
+        exit(ERR_EXCESS_ARGS);
     }
 }
