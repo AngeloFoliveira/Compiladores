@@ -44,17 +44,17 @@ typedef struct SymbolTable {
 // Interface da Tabela de Símbolos
 void push_scope();
 void pop_scope();
-void declare_symbol(const char* key, Natureza nature, DataType tipo);
-Symbol* use_symbol(const char* key, Natureza nature);
-void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2); 
+void declare_symbol(const char* key, Natureza nature, DataType tipo, int linha);
+Symbol* use_symbol(const char* key, Natureza nature, int linha);
+void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2, int linha); 
 void set_func_atual(const char* func);
 void free_func_atual();
 void insert_arg(DataType tipo);
 void reset_parameter_count();
 void set_func_call(const char* func);
 void free_func_call();
-void check_func_call(DataType tipo);
+void check_func_call(DataType tipo, int linha);
 void printArgList(Arg* arg);
-void check_parameter_count();
+void check_parameter_count(int linha);
 
 #endif // SYMBOL_TABLE_H
