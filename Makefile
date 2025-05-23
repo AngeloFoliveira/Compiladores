@@ -9,8 +9,8 @@ TABLE_OBJ = table.o
 PARSER_SRC = lex.yy.c parser.tab.c
 PARSER_OBJ = lex.yy.o parser.tab.o
 BISON_OBJ = parser.tab.c
-OUTPUT = etapa3
-CFLAGS= 
+OUTPUT = etapa4
+CFLAGS = -fsanitize=address
 
 $(OUTPUT): $(MAIN_SRC) $(PARSER_OBJ) $(ASD_OBJ) $(TABLE_OBJ)
 	gcc $(MAIN_SRC) $(PARSER_OBJ) $(ASD_OBJ) $(TABLE_OBJ) -o $(OUTPUT) -lfl $(CFLAGS)
