@@ -23,7 +23,11 @@ char* func_atual;
 	Arg *arg;
 }
 
-
+%destructor {
+	if ($$ != NULL && $$ != arvore) {
+		asd_free($$);
+	}
+} <no>;
 
 
 %token TK_PR_AS
@@ -106,18 +110,21 @@ decl_var_global: TK_PR_DECLARE TK_ID TK_PR_AS tipo
 
 def_func: TK_ID TK_PR_RETURNS tipo TK_PR_IS criaEscopo corpo2 destroiEscopo 
 			{declare_symbol($1->lexema, FUNCAO, $3, NULL, get_line_number());
+			func_atual = $1->lexema;
 			$$ = asd_new($1->lexema); 
 			if ($6 != NULL)asd_add_child($$, $6); 
 			free($1->lexema); 
 			free($1);}; 
 
 
-def_func: TK_ID TK_PR_RETURNS tipo TK_PR_WITH lista_parametros TK_PR_IS criaEscopo corpo2 destroiEscopo 
-			{declare_symbol($1->lexema, FUNCAO, $3, $5, get_line_number());
+def_func: TK_ID TK_PR_RETURNS tipo TK_PR_WITH criaEscopo lista_parametros TK_PR_IS corpo2 destroiEscopo 
+			{declare_symbol($1->lexema, FUNCAO, $3, $6, get_line_number());
+			func_atual = $1->lexema;
 			$$ = asd_new($1->lexema); 
 			if ($8 != NULL)asd_add_child($$, $8); 
 			free($1->lexema); 
-			free($1);}; 
+			free($1);
+			}; 
 
 corpo2: '[' ']' { $$ = NULL; };
 corpo2: '[' lista_comandos ']' { $$ = $2; };
@@ -176,11 +183,11 @@ chamada_funcao: TK_ID '(' ')'
 				{ char buffer[256];
     				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
     				$$ = asd_new(buffer);
-					$$->tipo = use_symbol($1->lexema, IDENTIFICADOR, get_line_number())->dataType;
 					func_atual = $1->lexema;
+					$$->tipo = use_symbol($1->lexema, FUNCAO, get_line_number())->dataType;
+					checkChamadaFuncao($1->lexema, NULL);
     				free($1->lexema);
     				free($1); };
-
 
 
 chamada_funcao: TK_ID '(' argumentos ')' 
@@ -188,11 +195,13 @@ chamada_funcao: TK_ID '(' argumentos ')'
 				{ char buffer[256];
     				snprintf(buffer, sizeof(buffer), "call %s", $1->lexema);
     				$$ = asd_new(buffer);
-					$$->tipo = use_symbol($1->lexema, IDENTIFICADOR, get_line_number())->dataType;
 					func_atual = $1->lexema;
-					checkChamadaFuncao($1->lexema, use_symbol($1->lexema, FUNCAO, get_line_number())->args);
+					$$->tipo = use_symbol($1->lexema, FUNCAO, get_line_number())->dataType;
+					Arg *argsChamada = transformar_asd_em_lista($3, NULL);
+					checkChamadaFuncao($1->lexema, argsChamada);
     				if ($3 != NULL)
     				asd_add_child($$,$3);
+					free_args(argsChamada);
     				free($1->lexema);
     				free($1); };
 
