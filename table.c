@@ -30,11 +30,23 @@ void push_scope() {
     scopeStack = table;
 }
 
+void free_args(Arg *args)
+{
+    Arg *atual = args;
+    while (atual != NULL)
+    {
+        Arg *prox = atual->prox;
+        free(atual);
+        atual = prox;
+    }
+}
+
 void pop_scope() {
     if (scopeStack) {
         Symbol* sym = scopeStack->symbols;
         while (sym) {
             Symbol* prox = sym->prox;
+            free_args(sym->args);
             free(sym);
             sym = prox;
         }
@@ -116,7 +128,7 @@ void free_func_atual() {
 void insert_arg(DataType tipo) {
     if (!func_atual) {
         //EM TEORIA NUNCA ENTRA AQUI, MAS É POR PRECAUÇÃO
-        fprintf(stderr, "Erro: função não definida. Linha: %d\n");
+        fprintf(stderr, "Erro: função não definida.\n");
         exit(ERR_UNDECLARED);
     }
     Symbol* func = find_symbol(func_atual);

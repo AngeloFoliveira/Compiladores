@@ -21,6 +21,11 @@ extern asd_tree_t *arvore;
 	DataType data_type;
 }
 
+%destructor {
+	if ($$ != NULL && $$ != arvore) {
+		asd_free($$);
+	}
+} <no>;
 
 %token TK_PR_AS
 %token TK_PR_DECLARE
