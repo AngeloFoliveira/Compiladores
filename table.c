@@ -108,7 +108,7 @@ Symbol* use_symbol(const char* key, Natureza nature, int linha) {
 
 void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2, int linha) {
     if (tipo1 != tipo2) {
-        fprintf(stderr, "Erro: tipos incompatíveis em expressão binária. Linha: %d\n", linha);
+        fprintf(stderr, "Erro: tipos incompatíveis. Linha: %d\n", linha);
         exit(ERR_WRONG_TYPE);
     }
 }

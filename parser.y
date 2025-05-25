@@ -144,15 +144,15 @@ decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo
 { $$ = NULL; free($2->lexema); free($2);};
 decl_var: TK_PR_DECLARE TK_ID TK_PR_AS tipo TK_PR_WITH literal 
 {declare_symbol($2->lexema, IDENTIFICADOR, $4, get_line_number());}
-{ $$ = asd_new("with"); asd_add_child($$, asd_new($2->lexema)); if ($6 != NULL)asd_add_child($$, $6); free($2->lexema); free($2); };
+{ $$ = asd_new("with"); $$->tipo=$4; checkTipoExpressaoBinaria($4, $6->tipo, get_line_number()); asd_add_child($$, asd_new($2->lexema)); if ($6 != NULL)asd_add_child($$, $6); free($2->lexema); free($2); };
 
 tipo: TK_PR_FLOAT {$$ = FLOAT;};
 tipo: TK_PR_INT {$$ = INT;};
 
-literal: TK_LI_FLOAT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
-literal: TK_LI_INT { $$ = asd_new($1->lexema) ;free($1->lexema); free($1); };
+literal: TK_LI_FLOAT { $$ = asd_new($1->lexema); $$->tipo=FLOAT; free($1->lexema); free($1); };
+literal: TK_LI_INT { $$ = asd_new($1->lexema); $$->tipo=INT; free($1->lexema); free($1); };
 
-atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new("is"); $$->tipo = use_symbol($1->lexema, IDENTIFICADOR, get_line_number())->dataType; checkTipoExpressaoBinaria($$->tipo, $3->tipo, get_line_number()); asd_add_child($$,asd_new($1->lexema)); if ($3 != NULL)asd_add_child($$,$3); free($1->lexema); free($1); };
+atribuicao: TK_ID TK_PR_IS expressao { $$ = asd_new("is"); $$->tipo = use_symbol($1->lexema, IDENTIFICADOR, get_line_number())->dataType; checkTipoExpressaoBinaria($$->tipo, $3->tipo, get_line_number()); asd_add_child($$,asd_new($1->lexema)); $$->tipo=$3->tipo; if ($3 != NULL)asd_add_child($$,$3); free($1->lexema); free($1); };
 
 chamada_funcao: TK_ID '(' ')' 	{ set_func_call($1->lexema); }
 				{ char buffer[256];
@@ -180,9 +180,10 @@ argumentos: expressao { check_func_call($1->tipo, get_line_number()); }',' argum
 
 comando_retorno: TK_PR_RETURN expressao TK_PR_AS tipo { $$ = asd_new("return"); checkTipoExpressaoBinaria($2->tipo, $4, get_line_number()); check_return_type($4, get_line_number());  $$->tipo=$4; if ($2 != NULL)asd_add_child($$,$2); };
 
-construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 { $$ = asd_new("if"); if ($3 != NULL)asd_add_child($$,$3); if ($5 != NULL)asd_add_child($$,$5); };
-construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 TK_PR_ELSE corpo2 { $$ = asd_new("if"); if ($3 != NULL)asd_add_child($$,$3); if ($5 != NULL)asd_add_child($$,$5); if ($7 != NULL)asd_add_child($$,$7); };
-construcao_fluxo: TK_PR_WHILE '(' expressao ')' corpo2 { $$ = asd_new("while"); if ($3 != NULL)asd_add_child($$,$3); if ($5 != NULL)asd_add_child($$,$5); };
+construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 { $$ = asd_new("if"); $$->tipo=$3->tipo; if ($3 != NULL)asd_add_child($$,$3); if ($5 != NULL)asd_add_child($$,$5); };
+construcao_fluxo: TK_PR_IF '(' expressao ')' corpo2 TK_PR_ELSE corpo2 { $$ = asd_new("if"); $$->tipo=$3->tipo; if ($3 != NULL)asd_add_child($$,$3); if ($5 != NULL)asd_add_child($$,$5); if ($7 != NULL)asd_add_child($$,$7);
+if($5 != NULL && $5->tipo != -1 && $7 != NULL && $7->tipo != -1)checkTipoExpressaoBinaria($5->tipo, $7->tipo, get_line_number());};
+construcao_fluxo: TK_PR_WHILE '(' expressao ')' corpo2 { $$ = asd_new("while"); $$->tipo=$3->tipo; if ($3 != NULL)asd_add_child($$,$3); if ($5 != NULL)asd_add_child($$,$5); };
 
 expressao: e7 { $$ = $1; };
 
