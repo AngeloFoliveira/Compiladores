@@ -98,8 +98,8 @@ void declare_symbol(const char* key, Natureza nature, DataType tipo, int linha) 
 
     if (nature == IDENTIFICADOR) {
         if (scopeStack->prox == NULL) { // Escopo Global
-            sym->offset = global_offset;
             global_offset += 4; // Assumindo variáveis de 4 bytes
+            sym->offset = global_offset;
         } else { // Escopo Local (função)
             current_offset += 4; // Assumindo variáveis de 4 bytes
             sym->offset = current_offset;

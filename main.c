@@ -15,6 +15,7 @@ int main (int argc, char **argv)
     if (ret == 0 && arvore != NULL) {
         // 1. Gerar segmento de dados a partir da tabela de símbolos globais
         asm_generate_data_section(stdout, get_global_scope());
+        pop_scope();
 
         // 2. Gerar segmento de código
         asm_generate_code(stdout, arvore->code);

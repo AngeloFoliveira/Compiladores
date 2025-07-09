@@ -1,13 +1,12 @@
-declare blabla as int,
-declare bleble as int,
-
+declare y as int,
 main returns int is [
     declare a as int with 5
     declare b as int with 10
     a is 1
     b is 9
-    while (a < b) [
+    y is 4
+    while (a < y) [
         a is a + 1
     ]
-    return b as int
+    return a as int
 ];

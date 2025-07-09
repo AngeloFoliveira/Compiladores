@@ -84,7 +84,7 @@ char* new_label() {
 
 %%
 
-programa: criaEscopo lista destroiEscopo ';'{ 
+programa: criaEscopo lista ';'{ 
         $$ = $2; 
         arvore = $$;
     };
