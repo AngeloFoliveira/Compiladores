@@ -1,11 +1,16 @@
 #ifndef _ASD_H_
 #define _ASD_H_
 
+// ... outras includes
+#include "asm.h" 
+
 typedef struct asd_tree {
   char *label;
   int number_of_children;
   struct asd_tree **children;
   int tipo;
+  // char* temp; 
+  asm_list_t *code;  
 } asd_tree_t;
 
 typedef struct valor {

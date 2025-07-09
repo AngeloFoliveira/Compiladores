@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/angel/Downloads/Compiladores",
-      "program": "c:/Users/angel/Downloads/Compiladores/build/Debug/outDebug",
+      "cwd": "c:/Users/angel/Downloads/etapa4",
+      "program": "c:/Users/angel/Downloads/etapa4/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

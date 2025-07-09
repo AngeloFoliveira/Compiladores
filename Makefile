@@ -1,40 +1,30 @@
-MAIN_SRC = main.c
-LEX_SRC = scanner.l
-LEX_OBJ = lex.yy.c
-PARSER = parser.y
-ASD_SRC = asd.c
-ASD_OBJ = asd.o
-TABLE_SRC = table.c
-TABLE_OBJ = table.o
-PARSER_SRC = lex.yy.c parser.tab.c
-PARSER_OBJ = lex.yy.o parser.tab.o
-BISON_OBJ = parser.tab.c
-OUTPUT = etapa3
-CFLAGS= 
+CC = gcc
+CFLAGS = -Wall -g
+LDFLAGS = -lfl
+TARGET = etapa6
 
-$(OUTPUT): $(MAIN_SRC) $(PARSER_OBJ) $(ASD_OBJ) $(TABLE_OBJ)
-	gcc $(MAIN_SRC) $(PARSER_OBJ) $(ASD_OBJ) $(TABLE_OBJ) -o $(OUTPUT) -lfl $(CFLAGS)
+SOURCES = main.c asd.c table.c asm.c parser.tab.c lex.yy.c
 
-$(LEX_OBJ): $(LEX_SRC)
-	flex $(LEX_SRC)
-	
-$(BISON_OBJ): $(PARSER)
-	bison -d $(PARSER)
-	
-$(PARSER_OBJ): $(PARSER_SRC) asd.c
-	gcc -c $(PARSER_SRC) asd.c -lfl
-	
-$(ASD_OBJ): $(ASD_SRC) asd.h
-	gcc -c $(ASD_SRC) $(CFLAGS)
+OBJECTS = $(SOURCES:.c=.o)
 
-$(TABLE_OBJ): $(TABLE_SRC) table.h
-	gcc -c $(TABLE_SRC) $(CFLAGS)
-	
-%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+HEADERS = asd.h table.h asm.h errors.h parser.tab.h
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)
+
+parser.tab.c parser.tab.h: parser.y
+	bison -d parser.y
+
+lex.yy.c: scanner.l parser.tab.h
+	flex scanner.l
+
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(LEX_OBJ) $(OUTPUT) $(PARSER_OBJ) $(PARSER_SRC) $(ASD_OBJ) $(TABLE_OBJ) parser.tab.h
+	rm -f $(TARGET) $(OBJECTS) parser.tab.c parser.tab.h lex.yy.c *.s ex*
 
-run: $(OUTPUT)
-	./$(OUTPUT)
+run: $(TARGET)
+	./run_test.sh

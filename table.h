@@ -2,7 +2,6 @@
 #define SYMBOL_TABLE_H
 
 #define MAX_SYMBOL_NAME 64
-#include "asd.h"
 
 typedef enum {
     LITERAL,
@@ -28,7 +27,7 @@ typedef struct Symbol {
     Natureza nature;
     DataType dataType;
     Arg* args;
-    int line; // linha de declaração
+    int offset; // usado para variáveis locais
     union {
         int i_val;
         float f_val;
@@ -46,18 +45,22 @@ typedef struct SymbolTable {
 // Interface da Tabela de Símbolos
 void push_scope();
 void pop_scope();
-void free_args(Arg *args);
-Symbol* find_symbol(const char* key);
-Symbol* find_in_scope(SymbolTable* table, const char* key);
-void declare_symbol(const char* key, Natureza nature, DataType tipo, Arg* args, int linha);
+void declare_symbol(const char* key, Natureza nature, DataType tipo, int linha);
 Symbol* use_symbol(const char* key, Natureza nature, int linha);
-Symbol* create_symbol(const char* key, Natureza nature, DataType tipo, Arg* args, int linha);
 void checkTipoExpressaoBinaria(DataType tipo1, DataType tipo2, int linha); 
-void checkChamadaFuncao(const char* key, Arg* args);
-Arg* transformar_asd_em_lista(asd_tree_t* tree, Arg* lista);
-Arg* create_arg(DataType tipo);
-Arg* append_arg(Arg* lista, Arg* novo);
-
+void set_func_atual(const char* func);
+void free_func_atual();
+void insert_arg(DataType tipo);
+void set_func_call(const char* func);
+void free_func_call();
+void check_func_call(DataType tipo, int linha);
+void printArgList(Arg* arg);
+void check_parameter_count(int linha);
+void check_return_type(DataType tipo, int linha);
+int get_symbol_offset(const char* key);
+const char* get_symbol_base_reg(const char* key);
+int get_current_function_frame_size(void);
+SymbolTable* get_global_scope();
 
 
 #endif // SYMBOL_TABLE_H
