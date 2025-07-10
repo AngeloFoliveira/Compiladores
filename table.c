@@ -7,6 +7,7 @@
 
 
 SymbolTable* scopeStack = NULL;
+int variable_count = 0; // Contador de variáveis locais
 char *func_atual = NULL;
 char *func_call = NULL;
 int parameter_count = 0;
@@ -101,6 +102,7 @@ void declare_symbol(const char* key, Natureza nature, DataType tipo, int linha) 
             global_offset += 4; // Assumindo variáveis de 4 bytes
             sym->offset = global_offset;
         } else { // Escopo Local (função)
+            variable_count++;
             current_offset += 4; // Assumindo variáveis de 4 bytes
             sym->offset = current_offset;
         }
@@ -293,19 +295,6 @@ const char* get_symbol_base_reg(const char* key) {
 } 
 
 int get_current_function_frame_size(void) {
-    if (!scopeStack) {
-        return 0; // Não há escopo
-    }
 
-    int var_count = 0;
-    Symbol* sym = scopeStack->symbols; // Acessa apenas o escopo do topo
-
-    while (sym) {
-        if (sym->nature == IDENTIFICADOR) {
-            var_count++;
-        }
-        sym = sym->prox;
-    }
-
-    return var_count * 4; 
+    return variable_count * 4; 
 }
